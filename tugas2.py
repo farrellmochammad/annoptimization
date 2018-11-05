@@ -77,6 +77,7 @@ def algoritmabco(dataframe,scoutsbee,employebee,onlookerbee,NC):
 
         #Send scouts bee food sources
         for i in range(0,scoutsbee):
+                print "Generate scouts bee ",i+1
                 beescouthidden.append(generatehiddenlayer(5,30,0,1))
                 beescoutoutput.append(generateoutputlayer(1,5,0,1))
                 beescoutbiashidden.append(generatebias(5,0,1))
@@ -91,12 +92,14 @@ def algoritmabco(dataframe,scoutsbee,employebee,onlookerbee,NC):
                 arrprobability = []
                 #send employee bee to food source and define the amount of their nectar
                 for i in range(0,employebee):
+                        print "Generate employee bee ",i+1
                         beeemployeehidden.append(generatehiddenlayer(5,30,0,0.4))
                         beeemployeeoutput.append(generateoutputlayer(1,5,0,0.4))
                         beeemployeebiashidden.append(generatebias(5,0,0.4))
                         beeemployeebiasoutput.append(generatebias(1,0,0.4))
 
                 #counting nectar value
+                print "Counting nectar . . ."
                 for i in range(0,employebee):
                         accuracy,sse = testing(dataframe,beeemployeeoutput[i],beeemployeehidden[i],beeemployeebiashidden[i],beeemployeebiasoutput[i])
                         arraccuracy.append(accuracy)
@@ -112,6 +115,7 @@ def algoritmabco(dataframe,scoutsbee,employebee,onlookerbee,NC):
                 arrprobability = [i / sum(arrprobability) for i in arrprobability]
                 
                 for i in range(0,onlookerbee):
+                        print "Generate onlooker bee ",i+1
                         idx = arrprobability.index(max(arrprobability))
                         employebee += scoutsbee
                         if idx < scoutsbee :
@@ -130,6 +134,7 @@ def algoritmabco(dataframe,scoutsbee,employebee,onlookerbee,NC):
                 
                 #send scouts bee to searching are to search new food sources randomly
                 for i in range(0,scoutsbee):
+                        print "Generate scouts bee ",i+1
                         beescouthidden.append(generatehiddenlayer(5,30,random.uniform(0,1),random.uniform(0,1)))
                         beescoutoutput.append(generateoutputlayer(1,5,random.uniform(0,1),random.uniform(0,1)))
                         beescoutbiashidden.append(generatebias(5,0,random.uniform(0,1)))
@@ -142,7 +147,7 @@ def algoritmabco(dataframe,scoutsbee,employebee,onlookerbee,NC):
                         arrsse.append(sse)
                 bestsofar.append(max(arraccuracy))
         t += 1 
-        print "algoritma ABC menghasilkan nilai akurasi yang paling besar sebesar : ",max(bestsofar)
+        print "ABC algorithm produce accuracy : ",max(bestsofar)
 
                          
 
