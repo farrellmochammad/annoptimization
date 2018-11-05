@@ -73,6 +73,7 @@ def algoritmabco(dataframe,scoutsbee,employebee,onlookerbee,NC):
         beescoutbiasoutput,beeemployeebiasoutput,beeonlookerbiashidden = [] , [] , []
         solution = []
         outputneuron = 1
+        bestsofar = []
 
         #Send scouts bee food sources
         for i in range(0,scoutsbee):
@@ -82,7 +83,9 @@ def algoritmabco(dataframe,scoutsbee,employebee,onlookerbee,NC):
                 beescoutbiasoutput.append(generatebias(1,0,1))
         
         #looping
-        while (t<=5):
+        t = 0
+        while (t<=NC):
+                print "Cycle ",t+1
                 arraccuracy = []
                 arrsse = []
                 arrprobability = []
@@ -99,32 +102,50 @@ def algoritmabco(dataframe,scoutsbee,employebee,onlookerbee,NC):
                         arraccuracy.append(accuracy)
                         arrsse.append(sse)              
                 for i in range(0,scoutsbee):
-                        accuracy,sse = testing(dataframe,beescoutsoutput[i],beescoutshidden[i],beescoutsbiashidden[i],beescoutsbiasoutput[i])
+                        accuracy,sse = testing(dataframe,beescoutoutput[i],beescouthidden[i],beescoutbiashidden[i],beescoutbiasoutput[i])
                         arraccuracy.append(accuracy)
                         arrsse.append(sse)
 
-                #count the value of the sources probability with the sources requested by onlooker bees 
+                #count the value of the sources probability with the sources requested by onlooker bees and stop employed bees exploration 
                 for i in range(0,employebee+scoutsbee):
-                        arrprobability.append(float(1/arrsse[i]))
+                        arrprobability.append(float(100/arrsse[i]))
+                arrprobability = [i / sum(arrprobability) for i in arrprobability]
                 
+                for i in range(0,onlookerbee):
+                        idx = arrprobability.index(max(arrprobability))
+                        employebee += scoutsbee
+                        if idx < scoutsbee :
+                                beeonlookerhidden.append(generatehiddenlayer(5,30,0,1))
+                                beeonlookeroutput.append(generateoutputlayer(1,5,0,1))
+                                beeonlookerbiashidden.append(generatebias(5,0,1))
+                                beeonlookerbiasoutput.append(generatebias(1,0,1))
+                                scoutsbee -= 1
+                        else :
+                                beeonlookerhidden.append(generatehiddenlayer(5,30,0,0.4))
+                                beeonlookeroutput.append(generateoutputlayer(1,5,0,0.4))
+                                beeonlookerbiashidden.append(generatebias(5,0,0.4))
+                                beeonlookerbiasoutput.append(generatebias(1,0,0.4))
+                                employebee -= 1
+                        arrprobability.remove(idx)
+                
+                #send scouts bee to searching are to search new food sources randomly
+                for i in range(0,scoutsbee):
+                        beescouthidden.append(generatehiddenlayer(5,30,random.uniform(0,1),random.uniform(0,1)))
+                        beescoutoutput.append(generateoutputlayer(1,5,random.uniform(0,1),random.uniform(0,1)))
+                        beescoutbiashidden.append(generatebias(5,0,random.uniform(0,1)))
+                        beescoutbiasoutput.append(generatebias(1,0,random.uniform(0,1)))
+                
+                #find best food source and append to bestsofar variable
+                for i in range(0,scoutsbee):
+                        accuracy,sse = testing(dataframe,beescoutoutput[i],beescouthidden[i],beescoutbiashidden[i],beescoutbiasoutput[i])
+                        arraccuracy.append(accuracy)
+                        arrsse.append(sse)
+                bestsofar.append(max(arraccuracy))
+        t += 1 
+        print "algoritma ABC menghasilkan nilai akurasi yang paling besar sebesar : ",max(bestsofar)
 
+                         
 
-                        
-
-        
-        for i in range(0,totalbee):
-                beehidden.append(generatehiddenlayer(5,30,0,0.4))
-                beeoutput.append(generateoutputlayer(1,5,0,0.4))
-                beebiashidden.append(generatebias(5,0,0.4))
-                beebiasoutput.append(generatebias(1,0,0.4))
-        for j in range(0,totalbee):
-                print "Solusi Bee ",j+1
-                accuracy,SSE = testing(dataframe,beeoutput[j],beehidden[j],beebiashidden[j],beebiasoutput[j])
-                print "Akurasi : ",accuracy,"Fitness : ", float(100/SSE)
-                print "Selesai"
-        print "Solusi yang selama ini dihasilkan ",solution
-                        
-
-algoritmabco(dataframe,10,5)
+algoritmabco(dataframe,5,10,10,5)
         
 #print "Akurasi = ",testing(dataframe,generateoutputlayer(2,5),generatehiddenlayer(5,30),[0,0,0,0,0,0,0])/float(len(dataframe[columnname[0]]))*100,"%"
