@@ -28,7 +28,10 @@ def generateoutputlayer(outputlayer,countweight,minvalue,maxvalue):
 
 def testing(dataframe,outputneuron,hiddenneuron,biashidden,biasoutput):
         TP = 0
+        FP = 0
         FN = 0
+        TN = 0
+        SSE = [] 
         for i in range(0,len(dataframe[columnname[0]])):
                 neuronvalue = []
                 for j in range(2,len(columnname)):
@@ -40,21 +43,23 @@ def testing(dataframe,outputneuron,hiddenneuron,biashidden,biasoutput):
                 for m in range(0,len(neuronvalue)):
                         for n in range(0,len(outputneuron)):
                                 outputneuron[n][m] = neuronvalue[m] * random.uniform(0,1)
-                yes = 0
-                no = 0
                 for o in range(0,len(outputneuron)):
-                        if (o==0):
-                                yes += sum(outputneuron[o]) - biasoutput[o]
-                        else:
-                                no += sum(outputneuron[o]) - biasoutput[o]
-                print dataframe[columnname[1]][i],yes
-                if (yes>no) :
-                        if dataframe[columnname[1]][i] == "M":
-                                TP += 1
+                        result = sum(outputneuron[o]) - biasoutput[o]
+                if result - 10 < 0 :
+                        if dataframe[columnname[1]][i]=="B":
+                                TN += 1
+                                SSE.append(((result - 10)/100)**2)
+                        else :
+                                FN += 1 
+                                SSE.append(((result - 0.01)/100)**2)
                 else :
-                        if dataframe[columnname[1]][i] == "B":
-                                FN += 1
-        return TP+FN
+                        if dataframe[columnname[1]][i]=="M":
+                                TP += 1
+                                SSE.append(((result - 10)/100)**2)
+                        else :
+                                FP += 1
+                                SSE.append(((result - 0.01)/100)**2)
+        return float(TP+TP)/float(TN+TP+FP+FN),sum(SSE)
 
 def algoritmabco(dataframe,totalbee,NC):
         beehidden = []
@@ -67,8 +72,8 @@ def algoritmabco(dataframe,totalbee,NC):
                 beeoutput.append(generateoutputlayer(1,5,0,0.4))
         for j in range(0,totalbee):
                 print "Solusi Bee ",j+1
-                solution.append(testing(dataframe,beeoutput[j],beehidden[j],[0,0,0,0,0],[0])/float(len(dataframe[columnname[0]]))*100)
-                #solution.append(testing(dataframe,generateoutputlayer(outputneuron,NC),generatehiddenlayer(NC,30),bee[j][:NC],bee[j][NC:])/float(len(dataframe[columnname[0]]))*100)
+                accuracy,SSE = testing(dataframe,beeoutput[j],beehidden[j],[0,0,0,0,0],[0])
+                print "Akurasi : ",accuracy,"Fitness : ", float(1/SSE)
                 print "Selesai"
         print "Solusi yang selama ini dihasilkan ",solution
                         
