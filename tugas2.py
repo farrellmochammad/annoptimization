@@ -10,26 +10,6 @@ column = f.read()
 columnname = column.split("\t")
 columnname[len(columnname)-1] = 'fractal_dimension_worst'
 
-def printProgressBar (iteration, total, prefix = '', suffix = '', decimals = 1, length = 100, fill = '|'):
-    """
-    Call in a loop to create terminal progress bar
-    @params:
-        iteration   - Required  : current iteration (Int)
-        total       - Required  : total iterations (Int)
-        prefix      - Optional  : prefix string (Str)
-        suffix      - Optional  : suffix string (Str)
-        decimals    - Optional  : positive number of decimals in percent complete (Int)
-        length      - Optional  : character length of bar (Int)
-        fill        - Optional  : bar fill character (Str)
-    """
-    percent = ("{0:." + str(decimals) + "f}").format(100 * (iteration / float(total)))
-    filledLength = int(length * iteration // total)
-    bar = fill * filledLength + '-' * (length - filledLength)
-    print ('\r%s |%s| %s%% %s') % (prefix, bar, percent, suffix)
-    # Print New Line on Complete
-    if iteration == total: 
-        print "Nectare generated !"
-
 def generatehiddenlayer(hiddenlayer,countweight,minvalue,maxvalue):
         hiddenneuron = []
         for i in range(0,hiddenlayer):
@@ -121,18 +101,17 @@ def algoritmabco(dataframe,scoutsbee,employebee,onlookerbee,NC):
 
                 #counting nectar value
                 print "Counting nectar . . ."
-                printProgressBar(0, employebee, prefix = 'Progress:', suffix = 'Complete', length = 50)
                 for i in range(0,employebee):
                         accuracy,sse = testing(dataframe,beeemployeeoutput[i],beeemployeehidden[i],beeemployeebiashidden[i],beeemployeebiasoutput[i])
                         arraccuracy.append(accuracy)
                         arrsse.append(sse)
-                        printProgressBar(i + 1, employebee, prefix = 'Progress:', suffix = 'Complete', length = 50)   
-                printProgressBar(0, scoutsbee, prefix = 'Progress:', suffix = 'Complete', length = 50)
+                        print "Loading ... ",str(((i+1)/float(employebee)*100)),"%"   
                 for i in range(0,scoutsbee):
                         accuracy,sse = testing(dataframe,beescoutoutput[i],beescouthidden[i],beescoutbiashidden[i],beescoutbiasoutput[i])
                         arraccuracy.append(accuracy)
                         arrsse.append(sse)
-                        printProgressBar(i + 1, scoutsbee, prefix = 'Progress:', suffix = 'Complete', length = 50)
+                        print "Loading ... ",str(((i+1)/float(employebee)*100)),"%"   
+
 
                 #count the value of the sources probability with the sources requested by onlooker bees and stop employed bees exploration 
                 for i in range(0,employebee+scoutsbee):
@@ -150,10 +129,10 @@ def algoritmabco(dataframe,scoutsbee,employebee,onlookerbee,NC):
                                 beeonlookerbiasoutput.append(generatebias(1,0,1))
                                 scoutsbee -= 1
                         else :
-                                beeonlookerhidden.append(generatehiddenlayer(5,30,0,0.4))
-                                beeonlookeroutput.append(generateoutputlayer(1,5,0,0.4))
-                                beeonlookerbiashidden.append(generatebias(5,0,0.4))
-                                beeonlookerbiasoutput.append(generatebias(1,0,0.4))
+                                beeonlookerhidden.append(generatehiddenlayer(5,30,0,0.5))
+                                beeonlookeroutput.append(generateoutputlayer(1,5,0,0.5))
+                                beeonlookerbiashidden.append(generatebias(5,0,0.5))
+                                beeonlookerbiasoutput.append(generatebias(1,0,0.5))
                                 employebee -= 1
                         arrprobability.remove(arrprobability[idx])
                 
@@ -170,12 +149,11 @@ def algoritmabco(dataframe,scoutsbee,employebee,onlookerbee,NC):
                         accuracy,sse = testing(dataframe,beescoutoutput[i],beescouthidden[i],beescoutbiashidden[i],beescoutbiasoutput[i])
                         arraccuracy.append(accuracy)
                         arrsse.append(sse)
+                print arraccuracy
                 bestsofar.append(max(arraccuracy))
                 t += 1 
-        print "ABC algorithm produce accuracy : ",max(bestsofar)
+        print "ABC algorithm produce accuracy : ",(max(bestsofar)*100),"%"
 
-                         
-
-algoritmabco(dataframe,5,10,10,2)
+algoritmabco(dataframe,10,10,10,2)
         
 #print "Akurasi = ",testing(dataframe,generateoutputlayer(2,5),generatehiddenlayer(5,30),[0,0,0,0,0,0,0])/float(len(dataframe[columnname[0]]))*100,"%"
